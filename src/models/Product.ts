@@ -8,7 +8,7 @@ export interface Product {
   description: string;
   productPrice: string;
   productImage: string;
-  productCode: number;
+  productCode: string;
   categoryId: number;
 }
 
@@ -47,7 +47,7 @@ export const Product = sequelize.define<ProductInstance, Product>("Product", {
   productCode: {
     allowNull: false,
     unique: true,
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
   },
   categoryId: {
     allowNull: false,
