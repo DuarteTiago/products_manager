@@ -17,6 +17,11 @@ router.get("/categories/:id", categoriesController.show);
 router.get("/products", productsController.index);
 router.get("/products/newest", productsController.newest);
 router.get("/products/search", productsController.search);
+router.get(
+  "/products/auth/:id",
+  ensureAuth,
+  productsController.showAuthenticated
+);
 router.get("/products/:id", productsController.show);
 
 router.get("/favorites", ensureAuth, favoritesController.index);

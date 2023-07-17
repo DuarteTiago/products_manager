@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { productService } from "../services/productService";
 import { getPaginationParams } from "../helpers/getPaginationParams";
 import { Product } from "../models";
+import { favoriteService } from "../services/favoriteService";
+import { AuthenticatedRequest } from "../middlewares/auth";
 
 export const productsController = {
   //GET/products/newest
@@ -39,12 +41,34 @@ export const productsController = {
     return res.json(products);
   },
 
+    // GET/products/:id
+    show: async (req: Request, res: Response) => {
+      const { id } = req.params;
+      try {
+        const product = await productService.findByIdWithProducts(id);
+        return res.json(product);
+      } catch (err) {
+        if (err instanceof Error) {
+          return res.status(400).json({ message: err.message });
+        }
+      }
+    },
+
   // GET/products/:id
-  show: async (req: Request, res: Response) => {
-    const { id } = req.params;
+  showAuthenticated: async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id;
+    const productId = req.params.id;
     try {
-      const product = await productService.findByIdWithProducts(id);
-      return res.json(product);
+      const product = await productService.findByIdWithProducts(productId);
+      if (!product)
+        return res.status(404).json({ message: "Produto não encontrado" });
+
+      const favorited = await favoriteService.isFavorited(
+        Number(userId),
+        Number(productId)
+      );
+
+      return res.json({ ...product.get(), favorited });
     } catch (err) {
       if (err instanceof Error) {
         return res.status(400).json({ message: err.message });
